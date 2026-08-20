@@ -273,6 +273,36 @@ select {
   padding-left: 18px;
 }
 
+.section__header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-form-panel {
+  background: #fffdf9;
+  border: 2px dashed #e7d5bf;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  display: grid;
+  gap: 12px;
+}
+
+.admin-form-panel h3 {
+  margin: 0 0 4px;
+  color: #8a4b16;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
 .announcement-filter {
   display: flex;
   flex-wrap: wrap;

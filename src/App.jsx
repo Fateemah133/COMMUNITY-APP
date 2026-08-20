@@ -102,6 +102,22 @@ function App() {
   const [regError, setRegError] = useState('')
   const [regSubmitting, setRegSubmitting] = useState(false)
 
+  // Admin form state for events
+  const [showAddEvent, setShowAddEvent] = useState(false)
+  const [newEventDay, setNewEventDay] = useState('')
+  const [newEventDetail, setNewEventDetail] = useState('')
+  const [eventSubmitting, setEventSubmitting] = useState(false)
+  const [eventError, setEventError] = useState('')
+
+  // Admin form state for announcements
+  const [showAddAnnouncement, setShowAddAnnouncement] = useState(false)
+  const [newAnnTitle, setNewAnnTitle] = useState('')
+  const [newAnnSummary, setNewAnnSummary] = useState('')
+  const [newAnnCategory, setNewAnnCategory] = useState('Community Event')
+  const [newAnnImportant, setNewAnnImportant] = useState(false)
+  const [annSubmitting, setAnnSubmitting] = useState(false)
+  const [annError, setAnnError] = useState('')
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -241,6 +257,73 @@ function App() {
     }
   }
 
+  const handleAddEventSubmit = async (event) => {
+    event.preventDefault()
+    if (!newEventDay.trim() || !newEventDetail.trim()) {
+      setEventError('Please enter both the day/schedule and event details.')
+      return
+    }
+
+    setEventSubmitting(true)
+    setEventError('')
+
+    try {
+      const res = await fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ day: newEventDay.trim(), detail: newEventDetail.trim() }),
+      })
+
+      if (!res.ok) throw new Error('Failed to create event')
+      const createdEvent = await res.json()
+      setSiteEvents((prev) => [...prev, createdEvent])
+      setNewEventDay('')
+      setNewEventDetail('')
+      setShowAddEvent(false)
+    } catch {
+      setEventError('Unable to create event right now.')
+    } finally {
+      setEventSubmitting(false)
+    }
+  }
+
+  const handleAddAnnouncementSubmit = async (event) => {
+    event.preventDefault()
+    if (!newAnnTitle.trim() || !newAnnSummary.trim()) {
+      setAnnError('Please enter both a title and summary.')
+      return
+    }
+
+    setAnnSubmitting(true)
+    setAnnError('')
+
+    try {
+      const res = await fetch('/api/announcements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newAnnTitle.trim(),
+          summary: newAnnSummary.trim(),
+          category: newAnnCategory,
+          important: newAnnImportant,
+        }),
+      })
+
+      if (!res.ok) throw new Error('Failed to post announcement')
+      const createdAnn = await res.json()
+      setAnnouncements((prev) => [createdAnn, ...prev])
+      setNewAnnTitle('')
+      setNewAnnSummary('')
+      setNewAnnCategory('Community Event')
+      setNewAnnImportant(false)
+      setShowAddAnnouncement(false)
+    } catch {
+      setAnnError('Unable to post announcement right now.')
+    } finally {
+      setAnnSubmitting(false)
+    }
+  }
+
   const renderPage = () => {
     switch (page) {
       case 'about':
@@ -271,13 +354,56 @@ function App() {
       case 'events':
         return (
           <section className="page-section">
-            <div className="section__heading">
-              <p className="eyebrow">Events</p>
-              <h2>Join the next gathering with your family</h2>
+            <div className="section__header-flex">
+              <div className="section__heading" style={{ marginBottom: 0 }}>
+                <p className="eyebrow">Events</p>
+                <h2>Join the next gathering with your family</h2>
+              </div>
+              <button
+                type="button"
+                className="button button--primary"
+                onClick={() => setShowAddEvent(!showAddEvent)}
+              >
+                {showAddEvent ? 'Close Form' : '+ Add New Event'}
+              </button>
             </div>
+
+            {showAddEvent && (
+              <form className="admin-form-panel" onSubmit={handleAddEventSubmit}>
+                <h3>Create New Community Event</h3>
+                <label>
+                  Day / Schedule *
+                  <input
+                    type="text"
+                    placeholder="e.g. Saturdays, Monthly (1st Sunday)"
+                    value={newEventDay}
+                    onChange={(e) => setNewEventDay(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Event Details *
+                  <input
+                    type="text"
+                    placeholder="e.g. Youth Robotics & Quran Circle at 10:00 AM"
+                    value={newEventDetail}
+                    onChange={(e) => setNewEventDetail(e.target.value)}
+                  />
+                </label>
+                {eventError && <p className="error-message">{eventError}</p>}
+                <div className="form-actions">
+                  <button type="submit" className="button button--primary" disabled={eventSubmitting}>
+                    {eventSubmitting ? 'Saving…' : 'Save Event'}
+                  </button>
+                  <button type="button" className="button button--secondary" onClick={() => setShowAddEvent(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+
             <div className="event-grid">
-              {(siteEvents.length ? siteEvents : events).map((eventItem) => (
-                <article className="event" key={eventItem.day}>
+              {(siteEvents.length ? siteEvents : events).map((eventItem, idx) => (
+                <article className="event" key={eventItem.id || eventItem.day || idx}>
                   <h3>{eventItem.day}</h3>
                   <p>{eventItem.detail}</p>
                 </article>
@@ -295,10 +421,72 @@ function App() {
 
         return (
           <section className="page-section">
-            <div className="section__heading">
-              <p className="eyebrow">Updates & News</p>
-              <h2>Community Announcements</h2>
+            <div className="section__header-flex">
+              <div className="section__heading" style={{ marginBottom: 0 }}>
+                <p className="eyebrow">Updates & News</p>
+                <h2>Community Announcements</h2>
+              </div>
+              <button
+                type="button"
+                className="button button--primary"
+                onClick={() => setShowAddAnnouncement(!showAddAnnouncement)}
+              >
+                {showAddAnnouncement ? 'Close Form' : '+ Post Announcement'}
+              </button>
             </div>
+
+            {showAddAnnouncement && (
+              <form className="admin-form-panel" onSubmit={handleAddAnnouncementSubmit}>
+                <h3>Post New Community Announcement</h3>
+                <label>
+                  Announcement Title *
+                  <input
+                    type="text"
+                    placeholder="e.g. Eid Family Picnic & BBQ"
+                    value={newAnnTitle}
+                    onChange={(e) => setNewAnnTitle(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Category
+                  <select
+                    value={newAnnCategory}
+                    onChange={(e) => setNewAnnCategory(e.target.value)}
+                  >
+                    <option value="Community Event">Community Event</option>
+                    <option value="Volunteer">Volunteer</option>
+                    <option value="Education">Education</option>
+                    <option value="Facility">Facility</option>
+                  </select>
+                </label>
+                <label className="checkbox-label" style={{ margin: '4px 0' }}>
+                  <input
+                    type="checkbox"
+                    checked={newAnnImportant}
+                    onChange={(e) => setNewAnnImportant(e.target.checked)}
+                  />
+                  <span>Mark as High Priority / Important</span>
+                </label>
+                <label>
+                  Summary / Details *
+                  <textarea
+                    rows="3"
+                    placeholder="Provide details about the announcement..."
+                    value={newAnnSummary}
+                    onChange={(e) => setNewAnnSummary(e.target.value)}
+                  />
+                </label>
+                {annError && <p className="error-message">{annError}</p>}
+                <div className="form-actions">
+                  <button type="submit" className="button button--primary" disabled={annSubmitting}>
+                    {annSubmitting ? 'Publishing…' : 'Publish Announcement'}
+                  </button>
+                  <button type="button" className="button button--secondary" onClick={() => setShowAddAnnouncement(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
 
             <div className="announcement-filter">
               {categories.map((cat) => (
