@@ -5,9 +5,45 @@ const navigation = [
   { key: 'home', label: 'Home' },
   { key: 'about', label: 'About' },
   { key: 'events', label: 'Events' },
+  { key: 'announcements', label: 'Announcements' },
   { key: 'donations', label: 'Donations' },
   { key: 'register', label: 'Register' },
   { key: 'contact', label: 'Contact' },
+]
+
+const defaultAnnouncements = [
+  {
+    id: 1,
+    title: 'Ramadan Preparation & Community Iftar Schedule',
+    date: 'August 18, 2026',
+    category: 'Community Event',
+    summary: 'Join us for weekly prep meetings and review the preliminary schedule for nightly Taraweeh and community weekend iftars.',
+    important: true,
+  },
+  {
+    id: 2,
+    title: 'Monthly Food Pantry Drive — Volunteers Needed',
+    date: 'August 15, 2026',
+    category: 'Volunteer',
+    summary: 'Our monthly food distribution is coming up this Saturday. We are seeking volunteers for packing, sorting, and distribution.',
+    important: false,
+  },
+  {
+    id: 3,
+    title: 'Fall Youth Leadership & Quran Study Registration Open',
+    date: 'August 10, 2026',
+    category: 'Education',
+    summary: 'Enrollment is now open for weekend youth mentorship, robotics club, and Quran recitation classes starting September 1st.',
+    important: false,
+  },
+  {
+    id: 4,
+    title: 'Center Maintenance & Facility Upgrade Update',
+    date: 'August 5, 2026',
+    category: 'Facility',
+    summary: 'The main prayer hall HVAC upgrades have been completed. Thank you to all donors who made this facility improvement possible.',
+    important: false,
+  },
 ]
 
 const pillars = [
@@ -54,6 +90,7 @@ function App() {
   const [members, setMembers] = useState([])
   const [siteEvents, setSiteEvents] = useState([])
   const [announcements, setAnnouncements] = useState([])
+  const [announcementFilter, setAnnouncementFilter] = useState('All')
 
   const [regName, setRegName] = useState('')
   const [regEmail, setRegEmail] = useState('')
@@ -227,6 +264,77 @@ function App() {
             </div>
           </section>
         )
+      case 'announcements': {
+        const list = announcements.length ? announcements : defaultAnnouncements
+        const categories = ['All', 'Community Event', 'Volunteer', 'Education', 'Facility']
+        const filteredList =
+          announcementFilter === 'All'
+            ? list
+            : list.filter((item) => item.category === announcementFilter)
+
+        return (
+          <section className="page-section">
+            <div className="section__heading">
+              <p className="eyebrow">Updates & News</p>
+              <h2>Community Announcements</h2>
+            </div>
+
+            <div className="announcement-filter">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`filter-btn ${announcementFilter === cat ? 'active' : ''}`}
+                  onClick={() => setAnnouncementFilter(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <div className="announcements-grid">
+              {filteredList.map((ann) => (
+                <article
+                  className={`announcement-card ${ann.important ? 'important' : ''}`}
+                  key={ann.id || ann.title}
+                >
+                  <div>
+                    <div className="announcement-card__meta">
+                      {ann.category && <span className="badge">{ann.category}</span>}
+                      {ann.important && <span className="badge badge--important">Important</span>}
+                      {ann.date && <span className="announcement-card__date">{ann.date}</span>}
+                    </div>
+                    <h3>{ann.title}</h3>
+                    <p>{ann.summary || ann.detail}</p>
+                  </div>
+                  <div>
+                    {ann.category === 'Volunteer' && (
+                      <button
+                        className="button button--secondary"
+                        onClick={() => navigate('register')}
+                        type="button"
+                        style={{ fontSize: '0.85rem', padding: '6px 12px' }}
+                      >
+                        Sign Up to Volunteer
+                      </button>
+                    )}
+                    {ann.category === 'Education' && (
+                      <button
+                        className="button button--secondary"
+                        onClick={() => navigate('events')}
+                        type="button"
+                        style={{ fontSize: '0.85rem', padding: '6px 12px' }}
+                      >
+                        View Class Schedule
+                      </button>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )
+      }
       case 'donations':
         return (
           <section className="page-section">
@@ -442,16 +550,29 @@ function App() {
               </aside>
             </header>
 
-            {announcements.length > 0 && (
-              <aside className="announcement-banner">
-                <h3>Latest Announcements</h3>
-                <ul>
-                  {announcements.map((item, idx) => (
-                    <li key={idx}>{typeof item === 'string' ? item : item.title || item.detail}</li>
+            <aside className="announcement-banner">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ margin: 0 }}>Latest Announcements</h3>
+                <button
+                  onClick={() => navigate('announcements')}
+                  className="button button--secondary"
+                  style={{ fontSize: '0.8rem', padding: '4px 12px' }}
+                  type="button"
+                >
+                  View All Announcements →
+                </button>
+              </div>
+              <ul style={{ marginTop: '10px' }}>
+                {(announcements.length ? announcements : defaultAnnouncements)
+                  .slice(0, 2)
+                  .map((item, idx) => (
+                    <li key={item.id || idx}>
+                      <strong>{item.title || item}</strong>
+                      {(item.summary || item.detail) && ` — ${item.summary || item.detail}`}
+                    </li>
                   ))}
-                </ul>
-              </aside>
-            )}
+              </ul>
+            </aside>
 
             <main>
               <section className="section">
