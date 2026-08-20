@@ -1,5 +1,8 @@
 import express from 'express'
 import cors from 'cors'
+import path from 'path'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
 import {
   getMembers,
   addMember,
@@ -9,6 +12,9 @@ import {
   addAnnouncement,
   addContactMessage,
 } from './db.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -112,6 +118,16 @@ app.post('/api/contact', (req, res) => {
     res.status(500).json({ error: error.message })
   }
 })
+
+// Serve static React build files in production
+const distPath = path.join(__dirname, '../dist')
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath))
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next()
+    res.sendFile(path.join(distPath, 'index.html'))
+  })
+}
 
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT} with SQLite database`)
