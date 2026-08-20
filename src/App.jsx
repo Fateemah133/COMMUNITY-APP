@@ -161,7 +161,20 @@ function App() {
     setContactStatus('')
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: contactName.trim(),
+          email: contactEmail.trim(),
+          message: contactMessage.trim(),
+        }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to submit message')
+      }
+
       setContactStatus('Your message has been sent. We will respond soon.')
       setContactName('')
       setContactEmail('')
@@ -195,17 +208,25 @@ function App() {
     setRegStatus('')
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      const newMember = {
-        id: Date.now(),
-        name: regName.trim(),
-        email: regEmail.trim(),
-        phone: regPhone.trim(),
-        type: regType,
-        interests: regInterests,
-        registeredAt: new Date().toLocaleDateString(),
+      const res = await fetch('/api/members', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: regName.trim(),
+          email: regEmail.trim(),
+          phone: regPhone.trim(),
+          type: regType,
+          interests: regInterests,
+          notes: regNotes.trim(),
+        }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Registration failed')
       }
-      setMembers((prev) => [newMember, ...prev])
+
+      const createdMember = await res.json()
+      setMembers((prev) => [createdMember, ...prev])
       setRegStatus('Welcome! Your registration has been submitted successfully.')
       setRegName('')
       setRegEmail('')

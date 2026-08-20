@@ -1,0 +1,89 @@
+{
+  "members": [
+    {
+      "id": 1787245312110,
+      "name": "Test User",
+      "email": "test@example.com",
+      "phone": "",
+      "type": "Student",
+      "interests": [],
+      "notes": "",
+      "registeredAt": "8/20/2026"
+    },
+    {
+      "id": 1,
+      "name": "Sarah Ahmed",
+      "email": "sarah.ahmed@example.com",
+      "phone": "(555) 234-5678",
+      "type": "Family",
+      "interests": [
+        "Community Service & Food Drive",
+        "Youth Programs & Mentorship"
+      ],
+      "registeredAt": "8/15/2026"
+    },
+    {
+      "id": 2,
+      "name": "Omar Farooq",
+      "email": "omar.f@example.com",
+      "phone": "(555) 876-5432",
+      "type": "Individual",
+      "interests": [
+        "Event Planning & Logistics"
+      ],
+      "registeredAt": "8/18/2026"
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "day": "Sundays",
+      "detail": "Family brunch and community update (11:00 AM)"
+    },
+    {
+      "id": 2,
+      "day": "Wednesdays",
+      "detail": "Open study circle and discussion (6:30 PM)"
+    },
+    {
+      "id": 3,
+      "day": "Fridays",
+      "detail": "Gathering, khutbah, and shared meal (1:00 PM)"
+    }
+  ],
+  "announcements": [
+    {
+      "id": 1,
+      "title": "Ramadan Preparation & Community Iftar Schedule",
+      "date": "August 18, 2026",
+      "category": "Community Event",
+      "summary": "Join us for weekly prep meetings and review the preliminary schedule for nightly Taraweeh and community weekend iftars.",
+      "important": true
+    },
+    {
+      "id": 2,
+      "title": "Monthly Food Pantry Drive — Volunteers Needed",
+      "date": "August 15, 2026",
+      "category": "Volunteer",
+      "summary": "Our monthly food distribution is coming up this Saturday. We are seeking volunteers for packing, sorting, and distribution.",
+      "important": false
+    },
+    {
+      "id": 3,
+      "title": "Fall Youth Leadership & Quran Study Registration Open",
+      "date": "August 10, 2026",
+      "category": "Education",
+      "summary": "Enrollment is now open for weekend youth mentorship, robotics club, and Quran recitation classes starting September 1st.",
+      "important": false
+    },
+    {
+      "id": 4,
+      "title": "Center Maintenance & Facility Upgrade Update",
+      "date": "August 5, 2026",
+      "category": "Facility",
+      "summary": "The main prayer hall HVAC upgrades have been completed. Thank you to all donors who made this facility improvement possible.",
+      "important": false
+    }
+  ],
+  "contactMessages": []
+}
