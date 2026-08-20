@@ -1,6 +1,14 @@
 import express from 'express'
 import cors from 'cors'
-import { readDb, writeDb } from './db.js'
+import {
+  getMembers,
+  addMember,
+  getEvents,
+  addEvent,
+  getAnnouncements,
+  addAnnouncement,
+  addContactMessage,
+} from './db.js'
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -16,8 +24,12 @@ app.use((req, res, next) => {
 
 // --- MEMBERS ENDPOINTS ---
 app.get('/api/members', (req, res) => {
-  const db = readDb()
-  res.json(db.members || [])
+  try {
+    const members = getMembers()
+    res.json(members)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
 app.post('/api/members', (req, res) => {
@@ -27,28 +39,22 @@ app.post('/api/members', (req, res) => {
     return res.status(400).json({ error: 'Name and email are required fields.' })
   }
 
-  const db = readDb()
-  const newMember = {
-    id: Date.now(),
-    name: name.trim(),
-    email: email.trim(),
-    phone: phone ? phone.trim() : '',
-    type: type || 'Individual',
-    interests: Array.isArray(interests) ? interests : [],
-    notes: notes || '',
-    registeredAt: new Date().toLocaleDateString(),
+  try {
+    const newMember = addMember({ name, email, phone, type, interests, notes })
+    res.status(201).json(newMember)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
   }
-
-  db.members = [newMember, ...(db.members || [])]
-  writeDb(db)
-
-  res.status(201).json(newMember)
 })
 
 // --- EVENTS ENDPOINTS ---
 app.get('/api/events', (req, res) => {
-  const db = readDb()
-  res.json(db.events || [])
+  try {
+    const events = getEvents()
+    res.json(events)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
 app.post('/api/events', (req, res) => {
@@ -58,18 +64,22 @@ app.post('/api/events', (req, res) => {
     return res.status(400).json({ error: 'Day and detail are required fields.' })
   }
 
-  const db = readDb()
-  const newEvent = { id: Date.now(), day, detail }
-  db.events = [...(db.events || []), newEvent]
-  writeDb(db)
-
-  res.status(201).json(newEvent)
+  try {
+    const newEvent = addEvent({ day, detail })
+    res.status(201).json(newEvent)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
 // --- ANNOUNCEMENTS ENDPOINTS ---
 app.get('/api/announcements', (req, res) => {
-  const db = readDb()
-  res.json(db.announcements || [])
+  try {
+    const announcements = getAnnouncements()
+    res.json(announcements)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
 app.post('/api/announcements', (req, res) => {
@@ -79,20 +89,12 @@ app.post('/api/announcements', (req, res) => {
     return res.status(400).json({ error: 'Title and summary are required fields.' })
   }
 
-  const db = readDb()
-  const newAnnouncement = {
-    id: Date.now(),
-    title,
-    summary,
-    category: category || 'General',
-    important: Boolean(important),
-    date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+  try {
+    const newAnnouncement = addAnnouncement({ title, summary, category, important })
+    res.status(201).json(newAnnouncement)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
   }
-
-  db.announcements = [newAnnouncement, ...(db.announcements || [])]
-  writeDb(db)
-
-  res.status(201).json(newAnnouncement)
 })
 
 // --- CONTACT ENDPOINT ---
@@ -103,21 +105,14 @@ app.post('/api/contact', (req, res) => {
     return res.status(400).json({ error: 'Name, email, and message are required fields.' })
   }
 
-  const db = readDb()
-  const newMessage = {
-    id: Date.now(),
-    name,
-    email,
-    message,
-    sentAt: new Date().toISOString(),
+  try {
+    const newMessage = addContactMessage({ name, email, message })
+    res.status(201).json({ message: 'Message received successfully.', contact: newMessage })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
   }
-
-  db.contactMessages = [newMessage, ...(db.contactMessages || [])]
-  writeDb(db)
-
-  res.status(201).json({ message: 'Message received successfully.', contact: newMessage })
 })
 
 app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`)
+  console.log(`Server listening on http://localhost:${PORT} with SQLite database`)
 })
