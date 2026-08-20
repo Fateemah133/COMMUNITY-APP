@@ -391,7 +391,7 @@ function App() {
                   Full Name *
                   <input
                     type="text"
-                    placeholder="Jane Doe"
+                    placeholder="Fatima Ali"
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
                   />
@@ -400,7 +400,7 @@ function App() {
                   Email Address *
                   <input
                     type="email"
-                    placeholder="jane@example.com"
+                    placeholder="fatima@example.com"
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
                   />
@@ -502,7 +502,7 @@ function App() {
                   Name
                   <input
                     type="text"
-                    placeholder="Your name"
+                    placeholder="Zainab Ibrahim"
                     value={contactName}
                     onChange={(event) => setContactName(event.target.value)}
                   />
@@ -511,7 +511,7 @@ function App() {
                   Email
                   <input
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="zainab@example.com"
                     value={contactEmail}
                     onChange={(event) => setContactEmail(event.target.value)}
                   />
