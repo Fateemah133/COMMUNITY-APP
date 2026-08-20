@@ -1,13 +1,25 @@
-import Database from 'better-sqlite3'
 import path from 'path'
 import { fileURLToPath } from 'url'
+
+let Database
+if (typeof Bun !== 'undefined') {
+  const bunSqlite = await import('bun:sqlite')
+  Database = bunSqlite.Database
+} else {
+  const betterSqlite = await import('better-sqlite3')
+  Database = betterSqlite.default
+}
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const DB_FILE = path.join(__dirname, 'database.sqlite')
 
 const db = new Database(DB_FILE)
-db.pragma('journal_mode = WAL')
+if (db.pragma) {
+  db.pragma('journal_mode = WAL')
+} else if (db.exec) {
+  db.exec('PRAGMA journal_mode = WAL;')
+}
 
 // Initialize SQLite Tables
 db.exec(`
