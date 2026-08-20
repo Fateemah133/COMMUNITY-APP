@@ -6,6 +6,7 @@ const navigation = [
   { key: 'about', label: 'About' },
   { key: 'events', label: 'Events' },
   { key: 'donations', label: 'Donations' },
+  { key: 'register', label: 'Register' },
   { key: 'contact', label: 'Contact' },
 ]
 
@@ -53,6 +54,16 @@ function App() {
   const [members, setMembers] = useState([])
   const [siteEvents, setSiteEvents] = useState([])
   const [announcements, setAnnouncements] = useState([])
+
+  const [regName, setRegName] = useState('')
+  const [regEmail, setRegEmail] = useState('')
+  const [regPhone, setRegPhone] = useState('')
+  const [regType, setRegType] = useState('Individual')
+  const [regInterests, setRegInterests] = useState([])
+  const [regNotes, setRegNotes] = useState('')
+  const [regStatus, setRegStatus] = useState('')
+  const [regError, setRegError] = useState('')
+  const [regSubmitting, setRegSubmitting] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -118,10 +129,57 @@ function App() {
       setContactName('')
       setContactEmail('')
       setContactMessage('')
-    } catch (error) {
+    } catch {
       setContactError('Unable to send message right now. Please try again later.')
     } finally {
       setContactSubmitting(false)
+    }
+  }
+
+  const handleInterestToggle = (interest) => {
+    setRegInterests((prev) =>
+      prev.includes(interest)
+        ? prev.filter((i) => i !== interest)
+        : [...prev, interest]
+    )
+  }
+
+  const handleRegisterSubmit = async (event) => {
+    event.preventDefault()
+
+    if (!regName.trim() || !regEmail.trim()) {
+      setRegError('Please enter your full name and email address.')
+      setRegStatus('')
+      return
+    }
+
+    setRegSubmitting(true)
+    setRegError('')
+    setRegStatus('')
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      const newMember = {
+        id: Date.now(),
+        name: regName.trim(),
+        email: regEmail.trim(),
+        phone: regPhone.trim(),
+        type: regType,
+        interests: regInterests,
+        registeredAt: new Date().toLocaleDateString(),
+      }
+      setMembers((prev) => [newMember, ...prev])
+      setRegStatus('Welcome! Your registration has been submitted successfully.')
+      setRegName('')
+      setRegEmail('')
+      setRegPhone('')
+      setRegType('Individual')
+      setRegInterests([])
+      setRegNotes('')
+    } catch {
+      setRegError('Unable to process registration right now. Please try again.')
+    } finally {
+      setRegSubmitting(false)
     }
   }
 
@@ -191,6 +249,117 @@ function App() {
             </div>
           </section>
         )
+      case 'register':
+        return (
+          <section className="page-section">
+            <div className="section__heading">
+              <p className="eyebrow">Membership</p>
+              <h2>Join the Muslim Community Center</h2>
+            </div>
+            <div className="contact-grid">
+              <form className="panel" onSubmit={handleRegisterSubmit}>
+                <label>
+                  Full Name *
+                  <input
+                    type="text"
+                    placeholder="Jane Doe"
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Email Address *
+                  <input
+                    type="email"
+                    placeholder="jane@example.com"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Phone Number
+                  <input
+                    type="tel"
+                    placeholder="(555) 000-0000"
+                    value={regPhone}
+                    onChange={(e) => setRegPhone(e.target.value)}
+                  />
+                </label>
+                <label>
+                  Membership Type
+                  <select
+                    value={regType}
+                    onChange={(e) => setRegType(e.target.value)}
+                  >
+                    <option value="Individual">Individual</option>
+                    <option value="Family">Family</option>
+                    <option value="Student">Student</option>
+                    <option value="Senior">Senior</option>
+                  </select>
+                </label>
+                <fieldset className="fieldset">
+                  <legend>Areas of Interest / Volunteering</legend>
+                  {[
+                    'Community Service & Food Drive',
+                    'Youth Programs & Mentorship',
+                    'Event Planning & Logistics',
+                    'Educational & Study Circles',
+                  ].map((interest) => (
+                    <label key={interest} className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={regInterests.includes(interest)}
+                        onChange={() => handleInterestToggle(interest)}
+                      />
+                      <span>{interest}</span>
+                    </label>
+                  ))}
+                </fieldset>
+                <label>
+                  Additional Notes or Questions
+                  <textarea
+                    rows="3"
+                    placeholder="Tell us about yourself..."
+                    value={regNotes}
+                    onChange={(e) => setRegNotes(e.target.value)}
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className="button button--primary"
+                  disabled={regSubmitting}
+                >
+                  {regSubmitting ? 'Registering…' : 'Complete Registration'}
+                </button>
+                {regStatus && <p className="status-message">{regStatus}</p>}
+                {regError && <p className="error-message">{regError}</p>}
+              </form>
+
+              <div className="panel">
+                <h3>Member Benefits</h3>
+                <ul className="list">
+                  <li>Official community updates & newsletters</li>
+                  <li>Access to member-only workshops and retreats</li>
+                  <li>Volunteer outreach opportunities</li>
+                  <li>Youth leadership & educational programs</li>
+                </ul>
+
+                {members.length > 0 && (
+                  <div className="recent-members">
+                    <h4>Registered Members ({members.length})</h4>
+                    <ul className="member-list">
+                      {members.map((m) => (
+                        <li key={m.id || m.email || m.name}>
+                          <strong>{m.name}</strong> — {m.type || 'Member'}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )
       case 'contact':
         return (
           <section className="page-section">
@@ -257,8 +426,8 @@ function App() {
                   <button className="button button--primary" onClick={() => navigate('about')}>
                     Learn More
                   </button>
-                  <button className="button button--secondary" onClick={() => navigate('contact')}>
-                    Join Our Community
+                  <button className="button button--secondary" onClick={() => navigate('register')}>
+                    Register / Join Us
                   </button>
                 </div>
               </div>
@@ -272,6 +441,17 @@ function App() {
                 </ul>
               </aside>
             </header>
+
+            {announcements.length > 0 && (
+              <aside className="announcement-banner">
+                <h3>Latest Announcements</h3>
+                <ul>
+                  {announcements.map((item, idx) => (
+                    <li key={idx}>{typeof item === 'string' ? item : item.title || item.detail}</li>
+                  ))}
+                </ul>
+              </aside>
+            )}
 
             <main>
               <section className="section">
